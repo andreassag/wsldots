@@ -22,5 +22,14 @@
 *.agent.md
 *.skill.md
 copilot-instructions.md
+**/.copilot
+**/.agents
 AGENTS.md
 CLAUDE.md
+skills-lock.json
+
+# cc-sdd
+.kiro
+
+# Graphify
+**/graphify-out/
