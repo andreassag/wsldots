@@ -33,3 +33,7 @@ skills-lock.json
 
 # Graphify
 **/graphify-out/
+
+# RTK
+.github/hooks/rtk-rewrite.json
+**/RTK.md
