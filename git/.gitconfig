@@ -18,7 +18,7 @@
 	safecrlf = warn
 	symlinks = true
 [github]
-	user = exterex
+	user = andreassag
 [color]
 	ui = auto
 [color "branch"]
@@ -56,6 +56,3 @@
 	recurse = true
 [credential]
 	helper = store
-[safe]
-	directory = //wsl.localhost/Ubuntu/home/exterex/repo/amplicon
-	directory = *
