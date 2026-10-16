@@ -18,3 +18,4 @@ for bin_dir in "$HOME/.local/bin" "$HOME/bin"; do
     fi
 done
 unset bin_dir
+. "$HOME/.cargo/env"
