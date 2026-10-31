@@ -1,5 +1,6 @@
+# shellcheck shell=bash disable=SC1090,SC1091,SC2034
 # Path to your oh-my-bash installation.
-export OSH=$HOME/.oh-my-bash
+export OSH="$HOME/.oh-my-bash"
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-bash is loaded.
@@ -20,7 +21,7 @@ DISABLE_AUTO_UPDATE="true"
 HIST_STAMPS="dd.mm.yyyy"
 
 # Would you like to use another custom folder than $OSH/custom?
-OSH_CUSTOM=$HOME/.custom
+OSH_CUSTOM="$HOME/.custom"
 
 # Enabled completions
 completions=(docker docker-compose git makefile pip ssh)
@@ -31,16 +32,12 @@ aliases=(general)
 # Enabled plugins
 plugins=(git)
 
-# SSH configuration
-export SSH_KEY_PATH="$HOME/.ssh/"
-
 # GPG configuration
-export GPG_KEY_PATH="$HOME/.gpg/"
-export GPG_TTY=$(tty)  # Required for GPG signing in git
-
-# Source oh-my-bash
-if [[ -f $OSH/oh-my-bash.sh ]]; then
-    source $OSH/oh-my-bash.sh
+if GPG_TTY=$(tty 2>/dev/null); then
+    export GPG_TTY # Required for GPG signing in git
+    gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1 || true
+else
+    unset GPG_TTY
 fi
 
 # Add user bin directories to PATH
@@ -49,13 +46,32 @@ for bin_dir in "$HOME/bin" "$HOME/.local/bin"; do
         PATH="$bin_dir:$PATH"
     fi
 done
+unset bin_dir
 
-# Load user Bash configuration modules
-for file in "$HOME/.config/bash/.bash_aliases" "$HOME/.config/bash/.bash_functions" "$HOME/.config/bash/.bash_exports"; do
+if [ -f "$HOME/.cargo/env" ]; then
+    . "$HOME/.cargo/env"
+fi
+if [ -f "$HOME/.local/bin/env" ]; then
+    . "$HOME/.local/bin/env"
+fi
+
+# Load environment exports early (locale, ripgrep, fzf) before oh-my-bash loads
+if [[ -r "$HOME/.config/bash/.bash_exports" ]]; then
+    source "$HOME/.config/bash/.bash_exports"
+fi
+
+# Source oh-my-bash
+if [[ -f "$OSH/oh-my-bash.sh" ]]; then
+    source "$OSH/oh-my-bash.sh"
+fi
+
+# Load user Bash configuration modules (aliases and functions override OMB defaults)
+for file in "$HOME/.config/bash/.bash_aliases" "$HOME/.config/bash/.bash_functions"; do
     if [[ -r "$file" ]]; then
         source "$file"
     fi
 done
+unset file
 
 # UV shell completion
 if command -v uv >/dev/null 2>&1; then
@@ -65,23 +81,39 @@ if command -v uvx >/dev/null 2>&1; then
     eval "$(uvx --generate-shell-completion bash)"
 fi
 
-export PATH=/usr/local/cuda/bin:$PATH
-export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-export PATH="$HOME/.local/bin:$PATH"
-
-# FFmpeg
-export PATH=/usr/local/ffmpeg-8.1/bin:$PATH
-
-# >>> mamba initialize >>>
-# !! Contents within this block are managed by 'mamba shell init' !!
-export MAMBA_EXE='/home/exterex/miniforge3/bin/mamba';
-export MAMBA_ROOT_PREFIX='/home/exterex/miniforge3';
-__mamba_setup="$("$MAMBA_EXE" shell hook --shell bash --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__mamba_setup"
-else
-    alias mamba="$MAMBA_EXE"  # Fallback on help from mamba activate
+# Optional CUDA & FFmpeg paths
+if [[ -d /usr/local/cuda/bin ]] && [[ ":$PATH:" != *":/usr/local/cuda/bin:"* ]]; then
+    export PATH="/usr/local/cuda/bin:$PATH"
 fi
-unset __mamba_setup
-# <<< mamba initialize <<<
-. "$HOME/.cargo/env"
+if [[ -d /usr/local/cuda/lib64 ]]; then
+    export LD_LIBRARY_PATH="/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+fi
+if [[ -d /usr/local/ffmpeg-8.1/bin ]] && [[ ":$PATH:" != *":/usr/local/ffmpeg-8.1/bin:"* ]]; then
+    export PATH="/usr/local/ffmpeg-8.1/bin:$PATH"
+fi
+
+# FZF keybindings and completion
+if [[ -f /usr/share/doc/fzf/examples/key-bindings.bash ]]; then
+    source /usr/share/doc/fzf/examples/key-bindings.bash
+fi
+if [[ -f /usr/share/bash-completion/completions/fzf ]]; then
+    source /usr/share/bash-completion/completions/fzf
+fi
+
+# Mamba initialize (portable across usernames)
+export MAMBA_ROOT_PREFIX="$HOME/miniforge3"
+export MAMBA_EXE="$MAMBA_ROOT_PREFIX/bin/mamba"
+if [[ -x "$MAMBA_EXE" ]]; then
+    if __mamba_setup="$("$MAMBA_EXE" shell hook --shell bash --root-prefix "$MAMBA_ROOT_PREFIX" 2>/dev/null)"; then
+        eval "$__mamba_setup"
+    else
+        # shellcheck disable=SC2139
+        alias mamba="$MAMBA_EXE"
+    fi
+    unset __mamba_setup
+fi
+
+# Local machine-specific overrides (not tracked in git)
+if [[ -r "$HOME/.config/bash/.bashrc.local" ]]; then
+    source "$HOME/.config/bash/.bashrc.local"
+fi

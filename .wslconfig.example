@@ -2,3 +2,10 @@
 memory=6GB
 processors=4
 localhostForwarding=true
+networkingMode=mirrored
+dnsTunneling=true
+autoProxy=true
+
+[experimental]
+autoMemoryReclaim=gradual
+sparseVhd=true

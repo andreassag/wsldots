@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # WSL helper functions
 function wslpath_win() {
     local path="${1:-.}"

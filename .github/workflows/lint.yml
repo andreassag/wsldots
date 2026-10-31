@@ -1,0 +1,19 @@
+name: Lint
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        run: |
+          shellcheck setup scripts/install.sh
+          shellcheck --shell=bash .profile bash/.bashrc bash/.bash_profile bash/.bash_aliases bash/.bash_functions bash/.bash_exports

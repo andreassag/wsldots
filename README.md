@@ -14,14 +14,19 @@ Run the installer from the repository root:
 
 The installer now:
 - creates organized directories and backups for existing dotfiles
-- installs essential packages from `scripts/packages.txt`
-- installs `oh-my-bash` if missing
-- links Git, Bash, GPG, SSH, and wget configuration
-- installs WSL-aware config via `/etc/wsl.conf` when available
+- installs essential packages from `scripts/packages.txt` (including `gh`, `git-lfs`, `pinentry-curses`, `shellcheck`, etc.)
+- installs `oh-my-bash` and `uv` if missing
+- links Git, Bash, GPG, SSH, wget, ripgrep, and Neovim configuration
+- synchronizes SSH keys (`id_*`) and config from Windows (`$WINDOWS_PATH/.ssh`) with secure permissions (`chmod 600`/`644`)
+- imports GPG keys and configures `gpg-agent` (with native Windows Gpg4win `pinentry.exe` GUI prompt when available)
+- automatically detects and configures Git credential helpers (Windows `git-credential-manager.exe` or `gh auth git-credential` fallback) in `~/.gitconfig.local`
+- checks GitHub CLI authentication (`gh auth status`) and offers interactive login (`gh auth login`) when needed
+- installs WSL-aware config via `/etc/wsl.conf` idempotently
 - configures a global Git ignore file at `~/.config/git/.gitignore`
 
 ## Added modules
 
+- `.profile`
 - `bash/.bashrc`
 - `bash/.bash_profile`
 - `bash/.bash_aliases`
@@ -29,10 +34,21 @@ The installer now:
 - `bash/.bash_exports`
 - `bash/.inputrc`
 - `git/.gitconfig`
+- `git/.gitattributes`
 - `gpg/gpg.conf`
+- `gpg/gpg-agent.conf`
+- `nvim/init.lua`
+- `ripgrep/.ripgreprc`
+- `wget/.wgetrc`
 - `wsl.conf`
 - `.wslconfig.example`
-- `setup/packages.txt`
+- `scripts/packages.txt`
+
+## Local Machine Overrides
+
+To customize settings on a specific machine without modifying tracked files:
+- **Bash**: Create `~/.config/bash/.bashrc.local` (automatically sourced at the end of `~/.bashrc`).
+- **Git**: Create `~/.gitconfig.local` (automatically included at the end of `~/.gitconfig`).
 
 ## WSL recommendations
 

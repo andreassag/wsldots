@@ -1,8 +1,9 @@
+# shellcheck shell=bash
 # Export environment variables and WSL-specific settings
-if locale -a 2>/dev/null | grep -iq '^en_US\.utf-8$'; then
+if locale -a 2>/dev/null | grep -Eqi '^en_US\.utf-?8$'; then
     export LANG="en_US.UTF-8"
     export LC_ALL="en_US.UTF-8"
-elif locale -a 2>/dev/null | grep -iq '^c\.utf-8$'; then
+elif locale -a 2>/dev/null | grep -Eqi '^c\.utf-?8$'; then
     export LANG="C.UTF-8"
     export LC_ALL="C.UTF-8"
 else
@@ -10,9 +11,8 @@ else
     unset LC_ALL
 fi
 
-if [ -r /proc/sys/kernel/osrelease ] && grep -qi microsoft /proc/sys/kernel/osrelease 2>/dev/null; then
-    if [ -r /etc/resolv.conf ]; then
-        export DISPLAY="$(grep -m1 nameserver /etc/resolv.conf | awk '{print $2}'):0.0"
-    fi
-    export LIBGL_ALWAYS_INDIRECT=1
+
+export RIPGREP_CONFIG_PATH="$HOME/.config/ripgrep/.ripgreprc"
+if command -v rg >/dev/null 2>&1; then
+    export FZF_DEFAULT_COMMAND='rg --files --hidden --glob "!.git/*"'
 fi

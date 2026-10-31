@@ -1,7 +1,7 @@
 [user]
 	name = andreassag
 	email = 30706568+andreassag@users.noreply.github.com
-	singingkey = 377CC066EF008466
+	signingkey = 377CC066EF008466
 [init]
 	defaultBranch = main
 [commit]
@@ -11,7 +11,7 @@
 	excludesfile = ~/.config/git/.gitignore
 	attributesfile = ~/.config/git/.gitattributes
 	autocrlf = input
-	editor = code
+	editor = code --wait
 	fileMode = true
 	hidedotfiles = false
 	protectntfs = true
@@ -39,8 +39,6 @@
 	submoduleSummary = true
 [diff]
 	submodule = log
-[default]
-	protocol = ssh
 [gpg]
 	program = gpg
 [tag]
@@ -54,7 +52,13 @@
 	required = true
 [submodule]
 	recurse = true
-[credential]
-	helper = store
 [pull]
 	rebase = true
+[include]
+	path = ~/.gitconfig.local
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
